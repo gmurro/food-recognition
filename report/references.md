@@ -1,7 +1,7 @@
 ## Useful referencies
 
 -------------------------------------------------------------------------
-Survays on ***Segmentation Models*** on literature:
+Survays of ***Segmentation Models*** on literature:
 > - [Evolution of Image Segmentation using Deep Convolutional Neural Network: A Survey, Sultana et al. (2020)](https://arxiv.org/pdf/2001.04074.pdf)
 > - [Image Segmentation Using Deep Learning: A Survey, Minaee et al. (2020)](https://arxiv.org/pdf/2001.05566.pdf)
 > - [Understanding Deep Learning Techniques for Image Segmentation, Ghosh et al. (2019)](https://arxiv.org/pdf/1907.06119.pdf)
