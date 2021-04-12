@@ -15,6 +15,7 @@ nms=[cat['id'] for cat in cats]
 #print(cats)
 
 
+
 catIds = coco.getCatIds();
 
 print(len(catIds))
