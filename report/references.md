@@ -28,3 +28,7 @@ Implementation of ***CNN*** for segmentation:
 > - [Evaluation metrics for object detection and segmentation: mAP](https://kharshit.github.io/blog/2019/09/20/evaluation-metrics-for-object-detection-and-segmentation)
 
 -------------------------------------------------------------------------
+
+***Examples of codes***:
+> - [Image segmentation with a U-Net-like architecture](https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/oxford_pets_image_segmentation.ipynb#scrollTo=Xk32wT83yp_Y)
+> - [A Beginner's guide to Deep Learning based Semantic Segmentation using Keras](https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html)
