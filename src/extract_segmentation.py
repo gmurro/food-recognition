@@ -116,7 +116,6 @@ class ExtractSegmentations:
             masks.append(mask)
         return masks
 
-
     def showBinaryMasks(self, n=4):
         image_ids = np.random.choice(self.coco.getImgIds(), n)
         imgs_json = self.coco.loadImgs(image_ids)
