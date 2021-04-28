@@ -4,6 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from tqdm import tqdm
+import os
 
 class Segmentation:
 
@@ -88,7 +89,7 @@ class Segmentation:
 
 
 
-    def extractBinaryMasks(self):
+    def extractBinaryMasks(self, saveMasks=True):
 
         imgIds = self.coco.getImgIds()
         imgs = self.coco.loadImgs(imgIds)
@@ -104,7 +105,10 @@ class Segmentation:
                 ann = self.coco.loadAnns(ann)[0]
                 mask = np.bitwise_or(mask, np.array(self.coco.annToMask(ann),  dtype=np.uint8))     # bit or
 
-            cv2.imwrite(self.pathDir + self.masksDir + img["file_name"], mask)
+            if saveMasks:
+                file_name = os.path.splitext(img["file_name"])[0] + ".png"
+                cv2.imwrite(self.pathDir + self.masksDir + file_name, mask)
+
             masks.append(mask)
 
             pbar.update(1)
@@ -118,7 +122,8 @@ class Segmentation:
 
         for json in imgs_json:
             img = mpimg.imread(self.pathDir+self.imgDir + json['file_name'])
-            mask = mpimg.imread(self.pathDir+self.masksDir + json['file_name'])
+            mask_file_name = os.path.splitext(json['file_name'])[0] + ".png"
+            mask = mpimg.imread(self.pathDir+self.masksDir + mask_file_name)
 
             # plot images
             fig, axes = plt.subplots(figsize=(10, 5), nrows=1, ncols=2)
