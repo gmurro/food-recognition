@@ -1,6 +1,10 @@
 # Ignore Datasets
 /data/coco
 
+# Ignore Mask RCNN folders created during execution of Mask_R_CNN.ipynb
+/src/model/Mask_RCNN
+/src/model/mask_rcnn_weights
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
