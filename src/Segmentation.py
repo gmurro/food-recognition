@@ -8,7 +8,7 @@ import os
 
 class Segmentation:
 
-    def __init__(self, pathDir, imgDir='/images/', annotationFile='annotations.json', masksDir='masks/'):
+    def __init__(self, pathDir, imgDir='images/', annotationFile='annotations.json', masksDir='masks/'):
         self.pathDir = pathDir
         self.imgDir = imgDir
         self.annotationFile = annotationFile
@@ -140,7 +140,68 @@ class Segmentation:
             plt.show()
 
 
-    '''
+
+    def createSubset(self, filterClasses):
+
+        subset = []
+
+        # Define the classes which you want to see. Others will not be selected.
+        subsetImgId = []
+
+        for cl in filterClasses:
+            # Fetch class IDs only corresponding to the filterClasses
+            catIds = self.coco.getCatIds(catNms=cl)
+            # Get all images containing the above Category IDs
+            imgIds = self.coco.getImgIds(catIds=catIds)
+            print("Number of images containing all the  class {} selected: {}".format(cl, len(imgIds)))
+            for id in imgIds:
+                subsetImgId.append(id)
+
+        print("Total number of images containing all the classes selected:", len(subsetImgId))
+        for i in range(len(subsetImgId)):
+            image = self.coco.loadImgs(subsetImgId[i])[0]
+            file_name = image['file_name']
+            subset.append(file_name)
+
+        return subset
+
+
+
+    # Extract mask with a value from 0 to len(labels) for each category in labels
+    def extractMasks(self, labels, saveMasks=True):
+        imgIds = self.coco.getImgIds()
+        imgs = self.coco.loadImgs(imgIds)
+
+        masks = list()
+
+        for img in imgs:
+            anns = self.coco.getAnnIds(imgIds=img['id'])
+
+            containsLabel = False
+
+            mask = np.zeros((img['height'], img['width']), dtype=np.uint8)
+            for ann in anns:
+                ann = self.coco.loadAnns(ann)[0]
+                catId = ann['category_id']
+
+                nameCat = self.coco.loadCats(catId)[0]['name']
+
+                if nameCat in labels:
+                    containsLabel = True
+
+                    label = labels.index(nameCat)+1
+                    mask += (np.array(self.coco.annToMask(ann), dtype=np.uint8) * label)
+
+            if containsLabel:
+                masks.append(mask)
+
+                if saveMasks:
+                    file_name = os.path.splitext(img["file_name"])[0] + ".png"
+                    cv2.imwrite(self.pathDir + self.masksDir + file_name, mask)
+
+        return masks
+
+    """
     # Extract mask with a value from 0 to 273 for each category but it do not work well
 
     def extractMasks(self):
@@ -161,7 +222,7 @@ class Segmentation:
             cv2.imwrite(self.pathDir + self.masksDir + img["file_name"], mask)
             masks.append(mask)
         return masks
-    '''
+    """
 
 
 

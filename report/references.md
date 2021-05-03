@@ -31,7 +31,6 @@ Implementation of ***CNN*** for segmentation:
 
 ***Examples of codes***:
 > - [Image segmentation with a U-Net-like architecture](https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/oxford_pets_image_segmentation.ipynb#scrollTo=Xk32wT83yp_Y)
-> - [A Beginner's guide to Deep Learning based Semantic Segmentation using Keras](https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html)
 > - [GitHub Transfer Learning with Unet](https://github.com/divamgupta/image-segmentation-keras)
 > - [Transfer Learning with Unet](https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html)
 > - [Implementation of deep learning framework -- Unet, using Keras](https://github.com/zhixuhao/unet)
