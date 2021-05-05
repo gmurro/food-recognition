@@ -139,7 +139,22 @@ class Segmentation:
 
             plt.show()
 
+    def distributionClasses(self, firstN=None):
 
+        # load all categories
+        catIds = self.coco.getCatIds()
+        cats = self.coco.loadCats(ids=catIds)
+
+        if firstN is None:
+            firstN = len(cats)
+
+        for cat in cats:
+            # Get all images containing catId
+            imgIds = self.coco.getImgIds(catIds=[cat['id']])
+            cat['count'] = len(imgIds)
+
+        cats = sorted(cats, reverse=True, key=lambda k: k['count'])
+        return cats[0:firstN]
 
     def createSubset(self, filterClasses):
 
