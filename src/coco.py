@@ -50,7 +50,6 @@ for img in imgs:
 
 img = imgs[9441]
 print(img)
-
 original_image = cv2.imread(dataDir+"/"+img['file_name'])
 plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
 plt.show()
