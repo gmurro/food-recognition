@@ -8,8 +8,8 @@ import PIL
 from PIL import ImageOps
 import cv2
 
-input_val_dir = "../data/val/images/"
-masks_val_dir = "../data/val/masks"
+input_val_dir = "../../data/val/images/"
+masks_val_dir = "../../data/val/masks"
 
 
 input_val_paths = sorted(

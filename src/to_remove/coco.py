@@ -10,7 +10,7 @@ from PIL import Image
 dataDir='../data/train/images'
 masksDir='../data/train/masks'
 
-coco = COCO("../data/train/annotations.json")
+coco = COCO("../../data/train/annotations.json")
 
 
 cats = coco.loadCats(coco.getCatIds())
