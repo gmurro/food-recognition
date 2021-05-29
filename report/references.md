@@ -37,4 +37,8 @@ Implementation of ***CNN*** for segmentation:
 > - [Implementation of deep learning framework -- Unet, using Keras](https://github.com/zhixuhao/unet)
 > - [Amazing Semantic Segmentation on Tensorflow && Keras (include FCN, UNet, SegNet, PSPNet, PAN, RefineNet, DeepLabV3, DeepLabV3+, DenseASPP, BiSegNet ...)](https://github.com/luyanger1799/Amazing-Semantic-Segmentation)
 
+***Improvements***:
+> - [Data Augmentation](https://www.pyimagesearch.com/2019/07/08/keras-imagedatagenerator-and-data-augmentation/)
+> - [Using of Dice loss in segmentation](https://www.jeremyjordan.me/semantic-segmentation/)
+
 
