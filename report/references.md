@@ -13,6 +13,7 @@ Papers on specific ***CNN*** for segmentation:
 > - [YOLACT++: Better Real-time Instance Segmentation, Bolya et al. (2020)](https://arxiv.org/abs/1912.06218)
 > - [Mask R-CNN, He et al. (2017)](https://arxiv.org/abs/1703.06870)
 > - [U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al. (2015)](https://arxiv.org/pdf/1505.04597.pdf)
+> - [A survey of loss functions for semantic segmentation](https://arxiv.org/pdf/2006.14822.pdf)
 -------------------------------------------------------------------------
 
 Implementation of ***CNN*** for segmentation:
@@ -35,3 +36,5 @@ Implementation of ***CNN*** for segmentation:
 > - [Transfer Learning with Unet](https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html)
 > - [Implementation of deep learning framework -- Unet, using Keras](https://github.com/zhixuhao/unet)
 > - [Amazing Semantic Segmentation on Tensorflow && Keras (include FCN, UNet, SegNet, PSPNet, PAN, RefineNet, DeepLabV3, DeepLabV3+, DenseASPP, BiSegNet ...)](https://github.com/luyanger1799/Amazing-Semantic-Segmentation)
+
+
