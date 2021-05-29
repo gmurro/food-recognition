@@ -41,4 +41,5 @@ Implementation of ***CNN*** for segmentation:
 > - [Data Augmentation](https://www.pyimagesearch.com/2019/07/08/keras-imagedatagenerator-and-data-augmentation/)
 > - [Using of Dice loss in segmentation](https://www.jeremyjordan.me/semantic-segmentation/)
 
-
+***Report***:
+> - [Report](https://www.overleaf.com/1416874268nkqpcmxsgwmy)
