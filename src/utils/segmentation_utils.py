@@ -202,21 +202,18 @@ def augment(x, y, img_aug_args):
         Batch of masks
     img_aug_args: dict
         Parameters of the Keras ImageDataGenerator class
-
     Returns
     ----------
     tuple
         (x, y) of the same shape of the input ones, but transformed
     """
-    mask_aug_args = img_aug_args.copy()
 
     # the brightness parameter is unuseful for the mask, remove it
-    if mask_aug_args.keys().__contains__('brightness_range'):
-        mask_aug_args.pop('brightness_range', None)
+    if img_aug_args.keys().__contains__('brightness_range'):
+        img_aug_args.pop('brightness_range', None)
 
     # we apply data augmentation to our datasets using Keras ImageDataGenerator class
     image_aug = ImageDataGenerator(**img_aug_args)
-    mask_aug = ImageDataGenerator(**mask_aug_args)
 
     # transpose the batch of the masks to iter over the channels
     y_t = y.transpose((3, 0, 1, 2))
@@ -237,14 +234,14 @@ def augment(x, y, img_aug_args):
     mask_gen = []
     for i in range(n_channel):
         # create a generator that can return an augmented batch of masks
-        mask_gen.append(mask_aug.flow(y_t[i].reshape(y_t[i].shape + (1,)), shuffle=False, batch_size=batch_size, seed=seed))
+        mask_gen.append(image_aug.flow(y_t[i].reshape(y_t[i].shape + (1,)), shuffle=False, batch_size=batch_size, seed=seed))
 
     # get the augmented batch
     x_aug = image_gen.next()
     for i in range(n_channel):
         y_aug[i] = mask_gen[i].next()[:,:,:,0]
 
-    return x_aug, y_aug.transpose((1, 2, 3, 0))
+    return x_aug, np.round(y_aug.transpose((1, 2, 3, 0)))
 
 
 def show_im(img_path, img=None):
@@ -266,6 +263,48 @@ def show_im(img_path, img=None):
         img = mpimg.imread(img_path)
 
     plt.imshow(img)
+    plt.axis('off')
+    plt.show()
+
+
+def show_mask(img, mask, labels, alpha=0.6, figsize=(5,5)):
+    """
+    Auxiliary function to plot images with mask overlapped.
+
+    Parameters
+    ----------
+    img : np.array
+        Image to plot as background
+    mask : np.array
+        Mask to plot as foreground
+    labels : list
+        List of categories containing also the background category.
+        Its size must be equal to the number of channels in the mask
+    alpha : double, optional
+        Transparency of the mask. Default is 0.6
+    figsize : pair, optional
+        Size of the figure to plot
+    """
+    plt.figure(figsize=figsize)
+
+    # Preparing the mask with overlapping
+    mask_plot = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.float32)
+    for i in range(len(labels)):
+        mask_plot += mask[:, :, i] * i
+        mask_plot[mask_plot >= i] = i
+    values = np.array(np.unique(mask_plot), dtype=np.uint8)
+
+    # plot image as background
+    plt.imshow(img)
+
+    # plot foreground mask
+    im = plt.imshow(mask_plot, interpolation='none', alpha=alpha)
+
+    # legend for mask colors
+    colors = [im.cmap(im.norm(value)) for value in range(len(labels))]
+    patches = [mpatches.Patch(color=colors[i], label=labels[i]) for i in values]
+    plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+
     plt.axis('off')
     plt.show()
 
@@ -421,3 +460,4 @@ def get_augmented(X, y, image_size, num_classes, batch_size=16, index=-1):
 
         yield X_aug, y_aug
 '''
+
