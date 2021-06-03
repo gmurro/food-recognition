@@ -244,6 +244,48 @@ def augment(x, y, img_aug_args):
     return x_aug, np.round(y_aug.transpose((1, 2, 3, 0)))
 
 
+# TODO Modify load_imagse since it retuns duplicates
+def get_class_weight(coco, cat_names=[]):
+    """
+    Compute weights for the given category on the training set
+
+    Parameters
+    ----------
+    coco: object
+        COCO object containing info about the COCO annotations
+    cat_names: list, optional
+        List of categories according to filter the dataset. If empty, load all dataset
+
+    Returns
+    -------
+    tuple
+        Tuple composed by:
+         - a list of image ids
+         - a list of  image names
+         - the new list of categories ordered and with the special category 'background' added
+         - a dict that maps category ids to the index of the previous array
+    """
+
+    # get cat ids
+    if cat_names is None:
+        cat_names = []
+    cat_ids = coco.getCatIds(catNms=cat_names)
+
+    # get cat_names ordered and with the special category 'background'
+    cats = coco.loadCats(cat_ids)
+    cat_names = ['background'] +[cat['name'] for cat in cats]
+
+    # build a map from cat_ids to to the corresponded index of cat_names
+    cat_to_label = dict(zip([0] + cat_ids, range(len(cat_names))))
+
+    # get images annotated with the filtered categories
+    img_ids = dict((id, len(coco.getImgIds(catIds=[id]))) for id in cat_ids)
+    img_ids = [item for sublist in img_ids for item in sublist]  # List of lists flattening
+    img_names = [coco.loadImgs(img_id)[0]['file_name'] for img_id in img_ids]
+
+    return img_ids, img_names, cat_names, cat_to_label
+
+
 def show_im(img_path, img=None):
     """
     Auxiliary function to plot images.
