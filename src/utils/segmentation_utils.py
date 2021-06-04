@@ -31,7 +31,7 @@ def load_coco_dataset(path_dir, annotation_file='annotations.json'):
     return COCO(os.path.join(path_dir, annotation_file))
 
 
-def load_data(coco, img_dir, img_size, cat_names=[],  show_progress=True):
+def load_data(coco, img_dir, img_size, class_names=[],  show_progress=True):
     """
     Load the whole dataset in one shot, filtering it for some categories
 
@@ -43,7 +43,7 @@ def load_data(coco, img_dir, img_size, cat_names=[],  show_progress=True):
         The path to the directory containing images to read
     img_size: tuple
         Height and width according to resize the images
-    cat_names: list, optional
+    class_names: list, optional
         List of categories according to filter the dataset. If empty, load all dataset
     show_progress: bool, optional
         If True, it allows to show the progress of the loading
@@ -56,7 +56,7 @@ def load_data(coco, img_dir, img_size, cat_names=[],  show_progress=True):
     """
 
     # load images info from annotations
-    img_ids, img_names, cat_names, cat_to_label = load_imgs(coco, cat_names)
+    img_ids, img_names, class_names, cat_to_class = load_imgs(coco, class_names)
 
     # prepare structure of input images
     x = np.zeros((len(img_names),) + img_size + (3,), dtype=np.float32)
@@ -74,18 +74,18 @@ def load_data(coco, img_dir, img_size, cat_names=[],  show_progress=True):
             bar_img.update(i)
 
     # prepare structure of target masks
-    y = np.zeros((len(img_names),) + img_size + (len(cat_names),), dtype=np.float32)
+    y = np.zeros((len(img_names),) + img_size + (len(class_names),), dtype=np.float32)
 
     if show_progress:
         print("\nLoading masks:")
         bar_mask = Progbar(target=len(img_ids))
 
     for i, img_id in enumerate(img_ids):
-        mask = load_mask(coco, img_id, cat_to_label)
+        mask = load_mask(coco, img_id, cat_to_class)
 
         # scale down mask
-        mask_scaled = np.zeros(img_size + (len(cat_names),), dtype=np.uint8)
-        for j in range(len(cat_names)):
+        mask_scaled = np.zeros(img_size + (len(class_names),), dtype=np.uint8)
+        for j in range(len(class_names)):
             mask_scaled[:, :, j] = Image.fromarray(mask[:, :, j]).resize(img_size, Image.NEAREST)
 
         y[i] = np.array(mask_scaled, dtype=np.float32)
@@ -95,7 +95,7 @@ def load_data(coco, img_dir, img_size, cat_names=[],  show_progress=True):
     return x, y
 
 
-def load_imgs(coco, cat_names=[]):
+def load_imgs(coco, class_names=[]):
     """
     Load image names and filter the dataset according to the list of categories specified.
 
@@ -103,7 +103,7 @@ def load_imgs(coco, cat_names=[]):
     ----------
     coco: object
         COCO object containing info about the COCO annotations
-    cat_names: list, optional
+    class_names: list, optional
         List of categories according to filter the dataset. If empty, load all dataset
 
     Returns
@@ -117,26 +117,28 @@ def load_imgs(coco, cat_names=[]):
     """
 
     # get cat ids
-    if cat_names is None:
-        cat_names = []
-    cat_ids = coco.getCatIds(catNms=cat_names)
+    if class_names is None:
+        class_names = []
+    cat_ids = coco.getCatIds(catNms=class_names)
 
     # get cat_names ordered and with the special category 'background'
     cats = coco.loadCats(cat_ids)
-    cat_names = ['background'] +[cat['name'] for cat in cats]
+    class_names = ['background'] +[cat['name'] for cat in cats]
 
     # build a map from cat_ids to to the corresponded index of cat_names
-    cat_to_label = dict(zip([0] + cat_ids, range(len(cat_names))))
+    cat_to_class = dict(zip([0] + cat_ids, range(len(class_names))))
 
     # get images annotated with the filtered categories
     img_ids = [coco.getImgIds(catIds=[id]) for id in cat_ids]
-    img_ids = [item for sublist in img_ids for item in sublist]  # List of lists flattening
+
+    # List of lists flattening and remove duplicates
+    img_ids = list(set([item for sublist in img_ids for item in sublist]))
     img_names = [coco.loadImgs(img_id)[0]['file_name'] for img_id in img_ids]
 
-    return img_ids, img_names, cat_names, cat_to_label
+    return img_ids, img_names, class_names, cat_to_class
 
 
-def load_mask(coco, img_id, cat_to_label):
+def load_mask(coco, img_id, cat_to_class):
     """
     Generate a multichannel mask for an image.
 
@@ -146,12 +148,12 @@ def load_mask(coco, img_id, cat_to_label):
         coco object containing info about the COCO annotations
     img_id: int
         id of the image for which you want get the mask
-    cat_to_label: dict
-        Map from cat_ids to to the corresponded index of cat_names
+    cat_to_class: dict
+        Map from cat_ids to to the corresponded index of class_names
 
     Returns
     -------
-    A np.array of shape [height, width, n_categories] where each channel is a binary mask correspondent to each category.
+    A np.array of shape [height, width, n_classes] where each channel is a binary mask correspondent to each category.
     The first channel is dedicated to the background
     """
 
@@ -161,10 +163,10 @@ def load_mask(coco, img_id, cat_to_label):
     anns = coco.getAnnIds(imgIds=img_id)
 
     # number of categories according to generate the mask. The background must be included
-    n_categories = len(cat_to_label)
+    n_classes = len(cat_to_class)
 
-    # Convert annotations to a binary mask of shape [height, width, n_categories]
-    mask = np.zeros((img['height'], img['width'], n_categories), dtype=np.float32)
+    # Convert annotations to a binary mask of shape [height, width, n_classes]
+    mask = np.zeros((img['height'], img['width'], n_classes), dtype=np.float32)
 
     # channel dedicated to the background
     background = np.zeros((img['height'], img['width']), dtype=np.uint8)
@@ -173,10 +175,10 @@ def load_mask(coco, img_id, cat_to_label):
         ann = coco.loadAnns(ann)[0]
 
         # check if it is a considered category
-        if ann['category_id'] in list(cat_to_label.keys()):
+        if ann['category_id'] in list(cat_to_class.keys()):
 
             # get channel to fill
-            i = cat_to_label[ann['category_id']]
+            i = cat_to_class[ann['category_id']]
             mask[:, :, i] = np.array(coco.annToMask(ann), dtype=np.float32)
 
             # compose incrementally the background channel
@@ -244,46 +246,61 @@ def augment(x, y, img_aug_args):
     return x_aug, np.round(y_aug.transpose((1, 2, 3, 0)))
 
 
-# TODO Modify load_imagse since it retuns duplicates
-def get_class_weight(coco, cat_names=[]):
+def get_class_dist(coco, class_names=[]):
     """
-    Compute weights for the given category on the training set
+    Compute the distibution of the given categories in the dataset
 
     Parameters
     ----------
     coco: object
         COCO object containing info about the COCO annotations
-    cat_names: list, optional
+    class_names: list, optional
         List of categories according to filter the dataset. If empty, load all dataset
 
     Returns
     -------
-    tuple
-        Tuple composed by:
-         - a list of image ids
-         - a list of  image names
-         - the new list of categories ordered and with the special category 'background' added
-         - a dict that maps category ids to the index of the previous array
+    dict
+        Dict of cat_id and the corresponding count
     """
 
     # get cat ids
-    if cat_names is None:
-        cat_names = []
-    cat_ids = coco.getCatIds(catNms=cat_names)
+    if class_names is None:
+        class_names = []
+    cat_ids = coco.getCatIds(catNms=class_names)
 
-    # get cat_names ordered and with the special category 'background'
-    cats = coco.loadCats(cat_ids)
-    cat_names = ['background'] +[cat['name'] for cat in cats]
+    # get the number of images in the dataset
+    img_ids = [coco.getImgIds(catIds=[id]) for id in cat_ids]
+    n_images = len(list(set([item for sublist in img_ids for item in sublist])))
 
-    # build a map from cat_ids to to the corresponded index of cat_names
-    cat_to_label = dict(zip([0] + cat_ids, range(len(cat_names))))
+    # get distribution of the categories in the dataset
+    cat_dist = dict([(id, len(coco.getImgIds(catIds=[id]))) for id in cat_ids])
 
-    # get images annotated with the filtered categories
-    img_ids = dict((id, len(coco.getImgIds(catIds=[id]))) for id in cat_ids)
-    img_ids = [item for sublist in img_ids for item in sublist]  # List of lists flattening
-    img_names = [coco.loadImgs(img_id)[0]['file_name'] for img_id in img_ids]
+    # add the background counts
+    class_dist = {0: n_images}
+    class_dist.update(cat_dist)
 
-    return img_ids, img_names, cat_names, cat_to_label
+    return class_dist
+
+
+def get_class_weights(class_dist):
+    """
+       Compute class weights using the formula n_samples / (n_classes * np.bincount(y))
+
+       Parameters
+       ----------
+       class_dist: dict
+           distribution of the categories in the dataset
+
+       Returns
+       -------
+       list
+           Array with class_weight_vect[i] the weight for i-th class.
+       """
+
+    n_samples = class_dist[0]
+    n_classes = len(class_dist)
+
+    return n_samples / (n_classes * np.array(list(class_dist.values())))
 
 
 def show_im(img_path, img=None):
@@ -309,7 +326,7 @@ def show_im(img_path, img=None):
     plt.show()
 
 
-def show_mask(img, mask, labels, alpha=0.6, figsize=(5,5)):
+def show_mask(img, mask, class_names, alpha=0.6, figsize=(5,5)):
     """
     Auxiliary function to plot images with mask overlapped.
 
@@ -319,7 +336,7 @@ def show_mask(img, mask, labels, alpha=0.6, figsize=(5,5)):
         Image to plot as background
     mask : np.array
         Mask to plot as foreground
-    labels : list
+    class_names : list
         List of categories containing also the background category.
         Its size must be equal to the number of channels in the mask
     alpha : double, optional
@@ -331,7 +348,7 @@ def show_mask(img, mask, labels, alpha=0.6, figsize=(5,5)):
 
     # Preparing the mask with overlapping
     mask_plot = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.float32)
-    for i in range(len(labels)):
+    for i in range(len(class_names)):
         mask_plot += mask[:, :, i] * i
         mask_plot[mask_plot >= i] = i
     values = np.array(np.unique(mask_plot), dtype=np.uint8)
@@ -343,15 +360,15 @@ def show_mask(img, mask, labels, alpha=0.6, figsize=(5,5)):
     im = plt.imshow(mask_plot, interpolation='none', alpha=alpha)
 
     # legend for mask colors
-    colors = [im.cmap(im.norm(value)) for value in range(len(labels))]
-    patches = [mpatches.Patch(color=colors[i], label=labels[i]) for i in values]
+    colors = [im.cmap(im.norm(value)) for value in range(len(class_names))]
+    patches = [mpatches.Patch(color=colors[i], label=class_names[i]) for i in values]
     plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
     plt.axis('off')
     plt.show()
 
 
-def show_multiple_im(input_img_paths, target_img_paths, cat_names, predictions=None, figsize=(10, 10)):
+def show_multiple_im(input_img_paths, target_img_paths, class_names, predictions=None, figsize=(10, 10)):
     """
     Auxiliary function to plot a batch of images.
 
@@ -361,7 +378,7 @@ def show_multiple_im(input_img_paths, target_img_paths, cat_names, predictions=N
         The file locations from which read the input images.
     target_img_paths : str
         The file locations from which read the masks.
-    cat_names : list
+    class_names : list
         Array of the categories to show on segmentation masks
     predictions : np.array, optional
         Batch of predictions.
@@ -388,8 +405,8 @@ def show_multiple_im(input_img_paths, target_img_paths, cat_names, predictions=N
         ax.axis('off')
 
         values = np.array(np.unique(mask), dtype=np.uint8)
-        colors = [im.cmap(im.norm(value)) for value in range(len(cat_names))]
-        patches = [mpatches.Patch(color=colors[i], label=cat_names[i]) for i in values]
+        colors = [im.cmap(im.norm(value)) for value in range(len(class_names))]
+        patches = [mpatches.Patch(color=colors[i], label=class_names[i]) for i in values]
         ax.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
         if predictions is not None:
@@ -398,8 +415,8 @@ def show_multiple_im(input_img_paths, target_img_paths, cat_names, predictions=N
             ax.axis('off')
 
             values = np.array(np.unique(predictions[i]), dtype=np.uint8)
-            colors = [im.cmap(im.norm(value)) for value in range(len(cat_names))]
-            patches = [mpatches.Patch(color=colors[i], label=cat_names[i]) for i in values]
+            colors = [im.cmap(im.norm(value)) for value in range(len(class_names))]
+            patches = [mpatches.Patch(color=colors[i], label=class_names[i]) for i in values]
             ax.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
     # set column title
