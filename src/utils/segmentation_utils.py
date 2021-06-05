@@ -326,7 +326,7 @@ def show_im(img_path, img=None):
     plt.show()
 
 
-def show_mask(img, mask, class_names, alpha=0.6, figsize=(5,5)):
+def show_mask(img, mask, class_names, alpha=0.5, figsize=(5, 5)):
     """
     Auxiliary function to plot images with mask overlapped.
 
@@ -349,19 +349,23 @@ def show_mask(img, mask, class_names, alpha=0.6, figsize=(5,5)):
     # Preparing the mask with overlapping
     mask_plot = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.float32)
     for i in range(len(class_names)):
-        mask_plot += mask[:, :, i] * i
-        mask_plot[mask_plot >= i] = i
+        k = i + 1
+        mask_plot += mask[:, :, i] * k
+        mask_plot[mask_plot >= k] = k
     values = np.array(np.unique(mask_plot), dtype=np.uint8)
 
     # plot image as background
     plt.imshow(img)
 
     # plot foreground mask
-    im = plt.imshow(mask_plot, interpolation='none', alpha=alpha)
+    im = plt.imshow(mask_plot, interpolation='none', alpha=alpha, cmap='rainbow')
+
+    # add none label
+    labels = ['none'] + class_names
 
     # legend for mask colors
-    colors = [im.cmap(im.norm(value)) for value in range(len(class_names))]
-    patches = [mpatches.Patch(color=colors[i], label=class_names[i]) for i in values]
+    colors = [im.cmap(im.norm(value)) for value in range(len(labels))]
+    patches = [mpatches.Patch(color=colors[i], label=labels[i]) for i in values]
     plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
     plt.axis('off')
