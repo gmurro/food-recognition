@@ -1,5 +1,3 @@
-# Ignore Datasets
-/data/coco
 
 # Ignore Mask RCNN folders created during execution of Mask_R_CNN.ipynb
 /src/model/Mask_RCNN

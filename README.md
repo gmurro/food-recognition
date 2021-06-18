@@ -6,7 +6,20 @@ The *Food Recognition* challenge is a competition hosted by [AIcrowd](https://ww
 
 The **goal** of this challenge is to train models which can look at images of food items and detect the individual food items present in them.
 
-
+## Prerequisites
+It is needed to install *pycocotools* to execute the notebooks.
+You can get it from `pip` or from the original [repo](https://github.com/cocodataset/cocoapi) 
+To **install on Windows**, you can use [Anaconda environment](https://www.anaconda.com/products/individual) and you must have the [Visual C++ 2015 build tools](https://go.microsoft.com/fwlink/?LinkId=691126):
+1. Clone the repo
+2. Create a new environment: `conda create -n deep`
+3. Activate the environment: `activate deep`
+4. Install requirements:  `pip install -r requirements.txt`
+5. inside PythonAPI folder, we can find `setup.py` file. Open the file and delete the following line:
+    ```python
+    extra_compile_args=[‘-Wno-cpp’, ‘-Wno-unused-function’, ‘-std=c99’]
+    ```
+6. run command `python setup.py build_ext install`
+7. run command `python setup.py build_ext --inplace`
 
 ## Dataset
 
