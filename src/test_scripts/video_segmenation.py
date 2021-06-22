@@ -2,6 +2,8 @@ import cv2
 import time
 import numpy as np
 import PIL
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import tensorflow as tf
 from PIL import ImageOps
 from tensorflow.keras.models import model_from_json
@@ -28,12 +30,12 @@ cat_names = ['background',
             'potatoes-steamed']
 
 # load json and create model
-with open('../model.json') as file:
+with open('../models/model_D/model_D.json') as file:
     model_json = file.read()
 model = model_from_json(model_json)
 
 # load weights
-model.load_weights('model/model_effunet.h5')
+model.load_weights('../models/model_D/weights_model_D_80e.h5')
 
 # used to record the time when we processed last frame
 prev_frame_time = 0
@@ -42,7 +44,7 @@ prev_frame_time = 0
 new_frame_time = 0
 
 # define a video capture object
-vid = cv2.VideoCapture(0)
+vid = cv2.VideoCapture('../../assets/img/video.mp4')
 
 while (True):
 
@@ -52,7 +54,8 @@ while (True):
     camera_img_size = (frame.shape[1], frame.shape[0])
 
     # run segmentation
-    x = np.expand_dims(cv2.resize(frame, img_size), axis=0)
+    resized_frame = cv2.resize(frame, img_size)
+    x = np.expand_dims(resized_frame, axis=0)
     y = model.predict(x)
 
     mask = np.argmax(y[0], axis=-1)
@@ -65,8 +68,8 @@ while (True):
     maskImg[:, :, 1] = img[:,:,0]
     maskImg[:, :, 2] = img[:,:,0]
 
-    ids = np.unique(img)
-    [print(id,cat_names[int(id)]) if id != 0 and id < 17 else print("") for id in ids]
+    ids = np.unique(mask)
+    [print(cat_names[int(id)]) if id != 0 and id < 17 else print("") for id in ids]
 
     overlap = cv2.addWeighted(frame, 1, maskImg, 0.6, 0)
 

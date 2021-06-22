@@ -10,7 +10,7 @@ The **goal** of this challenge is to train models which can look at images of fo
 
     .
     ├── assets 
-    │   └── imgs                       # Images used in the report
+    │   └── img                        # Images used in the report
     ├── report                         # Documentation of the project in pdf format
     ├── data                           # Dataset used for training, validation and testing
     │   ├── train 
@@ -64,14 +64,16 @@ In order to evaluate results produced by different models there were used three 
 - *Precision*
 - *Recall*
 
-![Segmentation](./assets/img/mod_image0.jpg)
+For same categories the accuracy of the prediction is very high, instead other categories seems to be very hard to recognize. 
+![IoU](./assets/img/cat_iou.png)
 
 
 
 ## Results
 
-For same categories the accuracy of the prediction is very high, instead other categories seems to be very hard to recognize. 
-![IoU](./assets/img/cat_iou.png)
+The best model is the last (called Model D), and it works quite well also at runtime detecting food segmentations from a video with an acceptable frame rate.
+
+![Apple segmentation](./assets/img/apple.gif)
 
 
 
