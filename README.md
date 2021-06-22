@@ -6,6 +6,30 @@ The *Food Recognition* challenge is a competition hosted by [AIcrowd](https://ww
 
 The **goal** of this challenge is to train models which can look at images of food items and detect the individual food items present in them.
 
+## Repository structure
+
+    .
+    ├── assets 
+    │   └── imgs                       # Images used in the report
+    ├── report                         # Documentation of the project in pdf format
+    ├── data                           # Dataset used for training, validation and testing
+    │   ├── train 
+    │   ├── val 
+    │   └── test
+    ├── src                            # Source files 
+    │   ├── test_scripts               # Test files used to verify the correctness of custom functions
+    │   ├── utils 
+    │   │   └── segmentation_utils.py  # Utility functions used into notebooks
+    │   ├── models                     # Contains the notebooks used for the training of each model
+    │   │   ├── model_A 
+    │   │   ├── model_B 
+    │   │   ├── model_C
+    │   │   └── model_D
+    │   └── EvalFoodRecognition.ipynb  # Notebook used for the evaluation of all models            
+    │
+    ├── LICENSE
+    └── README.md
+
 ## Prerequisites
 It is needed to install *pycocotools* to execute the notebooks.
 You can get it from `pip` or from the original [repo](https://github.com/cocodataset/cocoapi) 
