@@ -1,6 +1,6 @@
 # :pizza: Food Recognition :poultry_leg:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gmurro/FoodRecognition/blob/main/src/EvalFoodRecognition.ipynb)
 
 This repository contains a project realized as part of the *Deep Learning* exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
 
