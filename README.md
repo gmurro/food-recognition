@@ -1,5 +1,7 @@
 # :pizza: Food Recognition :poultry_leg:
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
+
 This repository contains a project realized as part of the *Deep Learning* exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
 
 The *Food Recognition* challenge is a competition hosted by [AIcrowd](https://www.aicrowd.com/challenges/food-recognition-challenge), where participants should deal with an image segmentation problem aiming to recognize individual food items in each image.
