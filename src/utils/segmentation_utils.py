@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as mpatches
+import matplotlib.cm as cm
 import os
 from PIL import Image
 
@@ -284,18 +285,18 @@ def get_class_dist(coco, class_names=[]):
 
 def get_class_weights(class_dist):
     """
-       Compute class weights using the formula n_samples / (n_classes * np.bincount(y))
+    Compute class weights using the formula n_samples / (n_classes * np.bincount(y))
 
-       Parameters
-       ----------
-       class_dist: dict
-           distribution of the categories in the dataset
+    Parameters
+    ----------
+    class_dist: dict
+       Distribution of the categories in the dataset
 
-       Returns
-       -------
-       list
-           Array with class_weight_vect[i] the weight for i-th class.
-       """
+    Returns
+    -------
+    list
+       Array with class_weight_vect[i] the weight for i-th class.
+    """
 
     n_samples = class_dist[0]
     n_classes = len(class_dist)
@@ -435,94 +436,65 @@ def show_multiple_im(input_img_paths, target_img_paths, class_names, predictions
     fig.tight_layout()
     plt.show()
 
-'''
-# TODO REMOVE THIS 
 
-def get_augmented(X, y, image_size, num_classes, batch_size=16, index=-1):
+def plot_class_dist(class_dist, cat_names, cat_to_class, without_background=False, figsize=(12, 8)):
     """
-  Generative function that create a batch of augumented images and masks
-  for the passed set of images and their correspondent masks.
+    Plot a pie chart of the class distribution
 
-  Parameters
-  ----------
-  X :nparray
-      set of images
-  y :nparray
-        set of masks with index equal to the one of the corresponding image
-  image_size : tuple of int size 2
-         size of the image and mask, first parameter is the weight, the second is the height
-  num_classes: int
-         number of categories for the segmentation
-  batch_size: int
-         size of the batch created for each image
-  index: int
-         index of the image to generate the batch, if not present it will choice randomly
+    Parameters
+    ----------
+    class_dist: dict
+       Distribution of the categories in the dataset
+    cat_names: list
+        Category names ordered and containing the special category 'background'
+    cat_to_class: dict
+        Map from cat_ids to to the corresponded index of class_names
+    without_background: bool, optional
+        Decide if the background will be included or not in the plot. Default is False
+    figsize:  array
+        Size of the figure to plot.
+    """
 
-  Returns
-  -------
-    Two np.array, one that represent the batch of modified images with shape [batch,sizeheight, width, n_categories]
-    and the other one that represent the batch modified masks with shape [batch,sizeheight, width, n_categories]
-    where last channel is the binary mask correspondent to each category.
-  """
-    # the arguments used by keras ImageGenerator for images
-    aug_generator_args = dict(rotation_range=10,
-                              width_shift_range=0.01,
-                              height_shift_range=0.01,
-                              brightness_range=(0.8, 1.2),
-                              shear_range=0.01,
-                              zoom_range=[1, 1.5],
-                              horizontal_flip=True,
-                              vertical_flip=True,
-                              fill_mode='constant',
-                              data_format='channels_last')
+    # sort class_distr
+    class_dist_sorted = dict(sorted(class_dist.items(), key=lambda x: x[1], reverse=True))
 
-    aug_generator_args_mask = aug_generator_args.copy()
-    # the arguments used by keras ImageGenerator for mask (same but without brightness)
-    aug_generator_args_mask.pop('brightness_range' ,None)
+    if without_background:
+        del class_dist_sorted[0]    # not consider background class
 
-    image_gen = ImageDataGenerator(**aug_generator_args)
-    mask_gen = ImageDataGenerator(**aug_generator_args_mask)
+    # set data
+    labels = [cat_names[cat_to_class[cat_id]] for cat_id in class_dist_sorted.keys()]
+    data = list(class_dist_sorted.values())
 
-    while True:
+    # colors
+    colors = cm.rainbow(np.linspace(0, 1, len(class_dist_sorted)))
 
-        if index == -1:
-            idx = np.random.choice(len(X - 1))
-        else:
-            idx = index
+    # explosion
+    explode = [0.1] * len(class_dist_sorted)
 
-        image = X[idx]
-        mask = y[idx]
-        print(mask.shape)
-        valid_mask = []
-        for i in range(num_classes):
-            channel = mask[:, :, i]
-            if channel.any():
-                valid_mask.append(channel)
+    # Wedge properties
+    wp = {'linewidth': 1, 'edgecolor': "black"}
 
-        X_aug = np.zeros((batch_size, image_size[0], image_size[1], 3)).astype('float')
-        y_aug = np.zeros((batch_size, image_size[0], image_size[1], num_classes)).astype('float')
+    # Creating plot
+    fig, ax = plt.subplots(figsize=figsize)
+    wedges, texts, autotexts = ax.pie(data,
+                                      autopct='%1.1f%%',
+                                      pctdistance=0.9,
+                                      explode=explode,
+                                      labels=labels,
+                                      shadow=True,
+                                      colors=colors,
+                                      startangle=90,
+                                      wedgeprops=wp
+                                      )
 
-        seed = np.random.choice(range(9999))
+    # Adding legend
+    ax.legend(wedges, labels,
+              title="Categories",
+              loc="center left",
+              bbox_to_anchor=(1.3, 0, 0.5, 1))
 
-        g_x = image_gen.flow(image.reshape((1,) + image.shape),
-                             batch_size=batch_size,
-                             seed=seed)
+    plt.setp(autotexts, size=8)
+    ax.set_title("Distribution of the categories")
 
-        g_ys = []
-
-        for i in range(len(valid_mask)):
-            g_ys.append(mask_gen.flow(valid_mask[i].reshape((1,) + valid_mask[i].shape + (1,)),
-                                      batch_size=batch_size,
-                                      seed=seed))
-
-        for batch_num in range(batch_size):
-            X_aug[batch_num] = g_x.next() / 255.0
-            for i in range(len(valid_mask)):
-                cat_channel = g_ys[i].next().reshape([160, 160])
-                y_aug[batch_num, :, :, i] = cat_channel
-
-        yield X_aug, y_aug
-        
-'''
-
-
+    # show plot
+    plt.show()
