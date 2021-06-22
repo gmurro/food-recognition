@@ -35,23 +35,19 @@ This dataset contains :
 
 ## Evaluation Criteria
 
-For a known ground truth mask A, you propose a mask B, then we first compute IoU (Intersection Over Union).
+In order to evaluate results produced by different models there were used three metrics: 
+- *IoU (Intersection Over Union)*
+- *Precision*
+- *Recall*
 
-IoU measures the overall overlap between the true region and the proposed region. Then we consider it a True detection, when there is at least half an overlap, or when IoU > 0.5
-
-Then we can define the following parameters :
-
-Precision (IoU > 0.5) :Recall (IoU > 0.5)
-
-The final scoring parameters AP*{IoU > 0.5} and AR*{IoU > 0.5} are computed by averaging over all the precision and recall values for all known annotations in the ground truth.
-
-A further discussion about the evaluation metric can be found [here](https://discourse.aicrowd.com/t/evaluation-criteria/2668).
+![Segmentation](./assets/img/mod_image0.jpg)
 
 
 
 ## Results
 
-Final results will be presented as soos as possible.
+For same categories the accuracy of the prediction is very high, instead other categories seems to be very hard to recognize. 
+![IoU](./assets/img/cat_iou.png)
 
 
 
