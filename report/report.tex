@@ -121,7 +121,7 @@ Image-based food recognition has in the past few years made substantial progress
 \chapter{Problem}\label{chap:problem}
 
 \section{Description}\label{sec:section-21}
-The goal of this project is to train models which can look at images of food items and detect, in the form of image segmentation, the individual food element. The categories of food to recognize are limited to a given a set of categories decided in function of the dataset used. Once that the neural networks used for the food recognition are trained, prediction on test set of images are made and based on them results are computed using some metrics.
+The goal of this project is to train models which can look at images of food items and detect, in the form of image segmentation, the individual food element. The categories of food to recognize are limited to a given set of categories decided in function of the dataset used. Once that the neural networks used for the food recognition are trained, prediction on test set of images are made and based on them results are computed using some metrics.
 
 
 \section{Dataset}\label{sec:section-22}
@@ -143,7 +143,7 @@ The dataset used for this project is the dataset provided in the Food Recognitio
 \chapter{Approach}\label{chap:chapter-3}
 
 \section{Preprocessing}\label{sec:section-31}
-The first preprocessing operation that has been done is the filtering of the categories that model can detect. It has been necessary to do this since the dataset provide lots of categories and images that, if totally used for training a neural network, would require high computation capability. So, it has been agreed to reduce the number of categories down to 16 and in the same way include only those images of the dataset where these classes are present. Following this idea, for the training it has been created a subset of the entire dataset. The categories that has been taken into account are the most present in the dataset considering the entire distribution of categories that is shown in \ref{fig:{dataset_dist}}:
+The first preprocessing operation that has been done is the filtering of the categories that model can detect. It has been necessary to do this since the dataset provides lots of categories and images that, if totally used for training a neural network, would require high computation capability. So, it has been agreed to reduce the number of categories down to 16 and in the same way include only those images of the dataset where these classes are present. Following this idea, for the training it has been created a subset of the entire dataset. The categories that has been taken into account are the most present in the dataset considering the entire distribution of categories that is shown in \ref{fig:{dataset_dist}}:
 
 \begin{figure}[h]
   \center
@@ -176,20 +176,19 @@ As we can see the most frequent categories are:
 These first 16 classes are the selected ones. Including the \emph{background} class, the total number of categories has become 17.
 The dataset has been reduced as follow:
 \begin{itemize}
-    \item \emph{Train set} : from 24120 images to 10819
+    \item \emph{Train set} : from 24120 images to 10819 (and annotations from 39328 annotations to 12869)
     \item \emph{Val set}: from 1269 images to 554
     \item \emph{Test set} : from 1269 images to 554
-    \item \emph{Total number of annotations in the training set} : from 39328 annotations to 12869
 \end{itemize}
 
 
 \section{Multichannel masks}\label{sec:section-32}
-One of the most important choice to do was to decide how to encode the classes present in the images into the corresponding masks. In particular how to represent the different categories that are inside a single image. The selected technique in order to deal with multiclass image is the so-called multichannel masks associated to every image. This technique consists in creating an output channel for each of the possible classes. Where every single channel represent the target by one-hot encoding the class labels. For apply this method it has been used Numpy matrices putting in the last dimension the encoding of every channel.
+One of the most important choice to do was to decide how to encode the classes present in the images into the corresponding masks. In particular how to represent the different categories that are inside a single image. The selected technique, in order to deal with multiclass images, is the use of the so-called multichannel masks associated to every image. This technique consists in creating an output channel for each of the possible classes, where every single channel represent the target by one-hot encoding the class labels. In order to apply this method it has been used Numpy matrices putting in the last dimension the encoding of every channel.
 A representation of this methodology is represented in \ref{fig:{multimask}}:
 
 \begin{figure}[h]
   \center
-  \includegraphics[width=0.7\linewidth]{assets/img/multimask.png}
+  \includegraphics[width=0.65\linewidth]{assets/img/multimask.png}
   \caption{Example of multichannel mask with one-hot encoded channels for every category}
   \label{fig:{multimask}}
 \end{figure}
@@ -218,15 +217,15 @@ mask is absent. The example of how the input and output are formed is shown in f
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.45\textwidth]{assets/img/banana.png}
+    \includegraphics[width=0.42\textwidth]{assets/img/banana.png}
     \includegraphics[width=0.45\textwidth]{assets/img/potatoes.png}
     \caption{Examples of image masks}
     \label{fig:example_masks}
 \end{figure}
 
 \section{Data Augmentation}\label{sec:section-34}
-Data augmentation is the application of a wide range of techniques used to generate "new" training samples \cite{augmentation}. In order to apply augmentation to the project it was implemented a generative function that creates a batch of augmented images and masks for the passed set of images and their correspondent masks.
-The term batch of augmented images it is referred to a data generator that instead of simply taking images from the dataset it applies some modifications on them. These modifications are applied to the images using the Keras ImageDataGenerator class that, passing some parameters, applies the same transformations to the image and the correspondent mask.
+Data augmentation is the application of a wide range of techniques used to generate a new randomly transformed batch of training samples replacing the original one \cite{augmentation}. Furthermore, it is a good method in order to avoid the phenomenon of the overfitting that could affect the model in the training phase. In order to apply augmentation to the project, Data Generator allow to create a batch of augmented images and their correspondent masks.
+The modifications are applied to the images using the Keras ImageDataGenerator class that, passing some parameters, applies the same transformations to the image and its related mask.
 The used transformations are:
 \begin{itemize}
     \item \emph{Rotation} (rotation range = 5\textdegree)
@@ -242,7 +241,7 @@ The figure \ref{fig:example_aug} shows an example of how augmentation is compute
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.45\textwidth]{assets/img/banana_aug.png}
+    \includegraphics[width=0.42\textwidth]{assets/img/banana_aug.png}
     \includegraphics[width=0.45\textwidth]{assets/img/potatoes_aug.png}
     \caption{Examples of augmentation}
     \label{fig:example_aug}
@@ -284,6 +283,11 @@ images. This measure ranges from 0 to 1 where a Dice coefficient of 1 denotes pe
 where $\left| {A \cap B} \right|$ represents the common elements between sets A and B, and $\left| A \right|$ represents the number of elements in set A (and likewise for set B).
 In order to formulate a loss function which can be minimized, it can be simply used $1 - Dice$. This loss function is known as \textit{soft Dice loss}. It is a region based loss and as Dice coefficient is non-convex in nature, so it has been modified to make it more tractable. It is called in this way because it directly uses the predicted probabilities instead of thresholding and converting them into a binary mask (see figure \ref{fig:dice_loss}). 
 
+\subsection{Combo Loss}\label{subsec:subsection-363}
+The final loss that has been used in this project is a sum of \textit{dice loss} and \textit{focal loss}. It attempts to combine their strengths and mitigate their drawbacks.
+
+\clearpage
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.65\textwidth]{assets/img/dice_loss.png}
@@ -291,8 +295,7 @@ In order to formulate a loss function which can be minimized, it can be simply u
     \label{fig:dice_loss}
 \end{figure}
 
-\subsection{Combo Loss}\label{subsec:subsection-363}
-The final loss that has been used in this project is a sum of \textit{dice loss} and \textit{focal loss}. It attempts to combine their strengths and mitigate their drawbacks.
+
 
 \section{Class weights}\label{sec:section-37}
 Semantic segmentation datasets can be highly imbalanced meaning that particular class pixels can be present more inside images than that of other classes. Since segmentation problems can be treated as per-pixel classification problems we can deal with imbalance problem by weighing the loss function to account for this. It's a simple and elegant way to deal with this problem. 
@@ -405,6 +408,7 @@ The most promising models were the ones illustrated in table \ref{table:models} 
 
 For the Eff U-Net training it has been applied the \textit{transfer learning}, a popular method that allows to build accurate models in a timesaving way reusing models trained on a different but somehow similar problem.
 Indeed, instead of starting the learning process from scratch it relies on pre-trained weights based on ImageNet. In this way the convolutional base has been freezed on its original form and it uses pre-trained weights to get feature extraction.
+
 As can be observed from the figure \ref{fig:plot}, the latter model seems to be the best and, thanks to transfer learning, the loss decreases much faster than other models in early epochs.
 
 \begin{figure}[h]
@@ -426,7 +430,7 @@ As can be observed from the figure \ref{fig:plot}, the latter model seems to be 
 All the predictive masks before the evaluation have been processed by a method that given in input the masks produced by the neural network, where it is associated a probability to each pixel , return a binarized masks where each pixel is 1 or 0 depending if the probability is over a certain threshold. The used threshold value, empirically selected, is 0.4 .
 
 \section{Metrics}\label{sec:section-51}
-In order to evaluate results produced by different models' predictions on the test set of images,there were used three metrics that are required by the project to and that are the most used at the state of art \cite{metrics}
+In order to evaluate results produced by different models' predictions on the test set of images, there were used three metrics that are required by the project to and that are the most used at the state of art \cite{metrics}
 \begin{itemize}
     \item \emph{IoU}: Intersection over Union
     \item \emph{Precision}
@@ -437,7 +441,7 @@ In order to evaluate results produced by different models' predictions on the te
 
 The intersection over union \ref{fig:iou}, known also as Jaccard index, is the ratio between the area of overlap and the area of union of the ground truth and prediction, where the overlap can be calculated as the intersection between the two masks.
 
-In the evaluation of the results of prediction the IoU is calculated for every different channel present in the image and the final image IoU is the mean of IoU of every channel.
+In the evaluation of the results of prediction, the IoU has been calculated for every different classes present in the image and the final image IoU is the mean of the IoU associated to every single class.
 The final result is the mean of every single image IoU that is called mIoU.
 
 
@@ -461,8 +465,8 @@ The precision effectively describes the purity of our positive detections relati
 
 \[Precision = \frac{TP}{TP + FP}\]
 
-In this project it was used the Keras Precision class passing the ground truth mask and the predicted mask.
-Simirarly to IoU results also the precision results are computed initially for each single image as the mean of the precision of every class present in the image and then compute the mean of all the images as final precision result computed by the model on the predictions of the test set.
+In this project it has been used the Keras Precision class passing the ground truth mask and the predicted mask.
+Simirarly to IoU results, also the precision results has been computed initially for each single image as the mean of the precision of every class present in the single image and then the mean of all the images precision has given the final precision value computed by the model on the predictions of the test set.
 
 \begin{figure}[h]
     \centering
@@ -477,7 +481,7 @@ The recall describes the completeness of our positive predictions relative to th
 
 \[Recall = \frac{TP}{TP + FN}\]
 
-Also in this case it was used the Keras Recall class passing the ground truth mask and the predicted mask and again, similarly to IoU and precision results, also the recall results are computed initially for each single image as the mean of the recall of every class present in the image and then compute the mean of all the images as final recall result computed by the model on the predictions of the test set.
+Also in this case it has been used the Keras Recall class passing the ground truth mask and the predicted mask and again, similarly to IoU and precision results, also the recall results has been computed initially for each single image as the mean of the recall of every class present in the image and then the mean of all the images has given the final recall value of the predictions made by model on the test set.
 
 \begin{figure}[h]
     \centering
@@ -489,7 +493,7 @@ Also in this case it was used the Keras Recall class passing the ground truth ma
 
 \clearpage\section{Results}\label{sec:section-52}
 
-The results that can be seen in the table \ref{table:test_results} are the final values of every metric computing the mean of every image values. It is important to say that these results take into account all the classes present in every single image (include the background class). Following some resources it can be seen that there are conflicting opinions on whether or not to take the background class into account in the calculation of the metrics. The final decision was to take into account also the background class following the suggestions of an AICrowd forum discussion about the evaluation criteria \cite{evalcriteria}
+The results that can be seen in the table \ref{table:test_results} are the final values of every metric computing the mean of every image values. It is important to say that these results take into account all the classes present in every single image (include the background class). Following some resources it can be seen that there are conflicting opinions on whether or not to take the background class into account in the calculation of the metrics values. The final decision was to take into account also the background class following the suggestions of an AICrowd forum discussion about the evaluation criteria \cite{evalcriteria}
 
 \begin{table}[h]
   \center
@@ -532,7 +536,9 @@ The results that can be seen in the table \ref{table:test_results} are the final
 %----------------------------------------------------------------------------------------
 {\let\clearpage\relax\par \chapter{Conclusions and future works}\label{chap:conclusions}
 
-From the results it is possible to see that the \text{Eff U-Net} is the model that gives the best results with respect to the others considered. In order to improve the work that has been done in this project the first step could be extend the training not only on a subset of the dataset but to the entire dataset. Of course this requires machines with more computational capability than the ones we used for this project. For this reason it is more realistic to improve the project looking for different model that could give better results than the used ones and also try to use different metrics in order to analyze in a more detailed way the results obtained. The last improvement that can be done is on the ground truth annotations, since there are some images where they are not perfectly done o classified a refinement of the annotations can positively influence the final results.
+From the results it is possible to see that the \text{Eff U-Net} is the model that gives the best results with respect to the others considered.
+In order to improve the work that has been done in this project the first step could be extend the training not only for some categories but to the entire dataset. Of course this requires machines with more computational capabilities than the one that was used for this project. For this reason, it is more realistic to improve the project looking for other models from literature (for instance Mask RCNN, DeepLabv3, etc.)  that could give better results for the project purposes. Moreover, it can be a good idea also to use different metrics in order to analyze in a more detailed way the results obtained by the various used models.
+The last improvement that can be done is on the ground truth annotations, since there are some images where they are not perfectly done.
 }
 
 

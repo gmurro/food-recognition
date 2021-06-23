@@ -44,7 +44,7 @@ prev_frame_time = 0
 new_frame_time = 0
 
 # define a video capture object
-vid = cv2.VideoCapture('../../assets/img/video.mp4')
+vid = cv2.VideoCapture(0)
 
 while (True):
 
