@@ -197,7 +197,7 @@ A representation of this methodology is represented in \ref{fig:{multimask}}:
 \section{Data Generator}\label{sec:section-33}
 Even if the dataset used for the training is a subset of the original, it is still too big to be loaded into memory at once and you could run out of RAM.
 That is the reason why there was the need to find other ways to do that task efficiently.
-A good solution is using of \textit{data generators}, that can read images on the the fly when they will be used for training.
+A good solution has been found in the use of \textit{data generators}, that can read images on the the fly when they are used for training.
 
 Keras allow to create custom data generators inheriting the properties of \emph{keras.utils.Sequence} in order to leverage nice functionalities such as multiprocessing.
 Every single \emph{Sequence} implements the methods:
@@ -232,9 +232,9 @@ The used transformations are:
     \item \emph{Width shift} (width shift range = \text{1\%})
     \item \emph{Height shift} (height shift range = \text{1\%})
     \item \emph{Shear shift} (shear range = \text{1\%})
-    \item \emph{Horizontal flip} (zoom range = \text{from 90\% to 100\%})
+    \item \emph{Horizontal flip} 
     \item \emph{Vertical flip}
-    \item \emph{Zoom}
+    \item \emph{Zoom}(zoom range = \text{from 90\% to 100\%})
 \end{itemize}
 
 The figure \ref{fig:example_aug} shows an example of how augmentation is computed on the images of figure \ref{fig:example_masks}.
@@ -427,10 +427,10 @@ As can be observed from the figure \ref{fig:plot}, the latter model seems to be 
 %----------------------------------------------------------------------------------------
 \chapter{Evaluation}\label{chap:chapter-5}
 
-All the predictive masks before the evaluation have been processed by a method that given in input the masks produced by the neural network, where it is associated a probability to each pixel , return a binarized masks where each pixel is 1 or 0 depending if the probability is over a certain threshold. The used threshold value, empirically selected, is 0.4 .
+All the predictive masks before the evaluation have been processed by a method that given in input the masks produced by the neural network, where it is associated a probability to each pixel, return a binarized masks where each pixel is 1 or 0 depending if the probability is over a certain threshold. The used threshold value, empirically selected, is 0.4 .
 
 \section{Metrics}\label{sec:section-51}
-In order to evaluate results produced by different models' predictions on the test set of images, there were used three metrics that are required by the project to and that are the most used at the state of art \cite{metrics}
+In order to evaluate results produced by different models' predictions on the test set of images, it has been used three metrics that are required by the project and that are the most used at the state of art \cite{metrics}
 \begin{itemize}
     \item \emph{IoU}: Intersection over Union
     \item \emph{Precision}
@@ -466,7 +466,7 @@ The precision effectively describes the purity of our positive detections relati
 \[Precision = \frac{TP}{TP + FP}\]
 
 In this project it has been used the Keras Precision class passing the ground truth mask and the predicted mask.
-Simirarly to IoU results, also the precision results has been computed initially for each single image as the mean of the precision of every class present in the single image and then the mean of all the images precision has given the final precision value computed by the model on the predictions of the test set.
+Similarly to IoU results, also the precision results have been computed initially for each single image, as the mean of the precision of every class present in it, and then the mean of all the images precision has given the final precision value computed by the model on the predictions of the test set.
 
 \begin{figure}[h]
     \centering
@@ -481,7 +481,7 @@ The recall describes the completeness of our positive predictions relative to th
 
 \[Recall = \frac{TP}{TP + FN}\]
 
-Also in this case it has been used the Keras Recall class passing the ground truth mask and the predicted mask and again, similarly to IoU and precision results, also the recall results has been computed initially for each single image as the mean of the recall of every class present in the image and then the mean of all the images has given the final recall value of the predictions made by model on the test set.
+Also in this case it has been used the Keras Recall class passing the ground truth mask and the predicted mask and again, similarly to IoU and precision results, also the recall results have been computed initially for each single image, as the mean of the recall of every class present in it, and then the mean of all the images has given the final recall value of the predictions made by model on the test set.
 
 \begin{figure}[h]
     \centering
@@ -493,7 +493,7 @@ Also in this case it has been used the Keras Recall class passing the ground tru
 
 \clearpage\section{Results}\label{sec:section-52}
 
-The results that can be seen in the table \ref{table:test_results} are the final values of every metric computing the mean of every image values. It is important to say that these results take into account all the classes present in every single image (include the background class). Following some resources it can be seen that there are conflicting opinions on whether or not to take the background class into account in the calculation of the metrics values. The final decision was to take into account also the background class following the suggestions of an AICrowd forum discussion about the evaluation criteria \cite{evalcriteria}
+The results that can be seen in the table \ref{table:test_results} are the final values of every metric computing the mean of every image values. It is important to say that these results take into account all the classes present in every single image (including the background class). Following some resources it can be seen that there are conflicting opinions on whether or not to take the background class into account in the calculation of the metrics values. The final decision was to take into account also the background class following the suggestions of an AICrowd forum discussion about the evaluation criteria \cite{evalcriteria}.
 
 \begin{table}[h]
   \center
